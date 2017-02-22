@@ -1,3 +1,6 @@
+//Bibliothèques
+#include <AccelStepper.h>
+
 //Constantes
 const int AnalogPin=A0;
 const int stepPin=3;
@@ -12,13 +15,20 @@ float DegreePerStep=1.8;
 unsigned long stepDelay=(unsigned long)(round((DegreePerStep/(float)Microstepping)/(2*DegreePerSeconds/1000000)));
 
 //Initialisation
+AccelStepper stepper(AccelStepper::DRIVER,stepPin,dirPin);
+
 void setup() {
   Serial.begin(9600);
   while(!Serial){}
   Serial.println(" ");
-  pinMode(stepPin,OUTPUT);
-  pinMode(dirPin,OUTPUT);
+  //pinMode(stepPin,OUTPUT);
+  //pinMode(dirPin,OUTPUT);
   pinMode(enablePin,OUTPUT);
+
+  stepper.setMaxSpeed(20);
+  stepper.setAcceleration(20);
+  
+  
 }
 
 //Fonctions
@@ -45,17 +55,22 @@ float ReadToFloat() {//lis le reste du buffer et convertit en float(ex. 123.45)
   return inString.toFloat();
 }
 void steps(long num) {//effectue un nombre 'num' de step au moteur pas à pas
+  stepper.move(num);
+  while (stepper.distanceToGo()>0) {
+    stepper.run();
+  }
+  
 //  Serial.print("steps ");                    //Debug
 //  Serial.println(num);                       //Debug
 //  unsigned long start=0;                     //Debug
 //  unsigned long finish=0;                    //Debug
 //  start=micros();                            //Debug
-  for(int i=0;i<num;i++) {
-    digitalWrite(stepPin,HIGH);
-    delayMicroseconds(stepDelay-7);
-    digitalWrite(stepPin,LOW);
-    delayMicroseconds(stepDelay-7);
-  }
+//  for(int i=0;i<num;i++) {
+//    digitalWrite(stepPin,HIGH);
+//    delayMicroseconds(stepDelay-7);
+//    digitalWrite(stepPin,LOW);
+//    delayMicroseconds(stepDelay-7);
+//  }
 //  finish=micros();                           //Debug
 //  Serial.println(finish-start);              //Debug
 }
