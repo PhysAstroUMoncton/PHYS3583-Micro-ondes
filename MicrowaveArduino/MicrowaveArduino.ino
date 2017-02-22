@@ -25,8 +25,8 @@ void setup() {
   //pinMode(dirPin,OUTPUT);
   pinMode(enablePin,OUTPUT);
 
-  stepper.setMaxSpeed(20);
-  stepper.setAcceleration(20);
+  stepper.setMaxSpeed(1000);
+  stepper.setAcceleration(200);
   
   
 }
@@ -56,8 +56,21 @@ float ReadToFloat() {//lis le reste du buffer et convertit en float(ex. 123.45)
 }
 void steps(long num) {//effectue un nombre 'num' de step au moteur pas à pas
   stepper.move(num);
-  while (stepper.distanceToGo()>0) {
+  while (abs(stepper.distanceToGo())>0) {
+    if (!digitalRead(8)){
+      stepper.setAcceleration(2000);
+      stepper.stop();
+      while (abs(stepper.distanceToGo())>0) {
+        stepper.run(); 
+      }
+      stepper.setAcceleration(200);
+      Serial.println(" ");
+      break;
+    }
+    else {
     stepper.run();
+    }
+    Serial.println(" ");
   }
   
 //  Serial.print("steps ");                    //Debug
@@ -161,7 +174,8 @@ void loop() {
       DegreeChange(ReadToFloat());
       break;
       case 's':
-      StepChange(ReadToInt());
+      //StepChange(ReadToInt());
+      steps(ReadToInt());
       break;
       case 'm':
 //      Serial.println("MeasureSample");       //Debug
